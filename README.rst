@@ -1,24 +1,12 @@
-:: 
+# twp - tableau workbook parser
 
-     _        _     _                  _ 
-    | |_ __ _| |__ | |_ ___  ___  __ _| |
-    | __/ _` | '_ \| __/ _ \/ __|/ _` | |
-    | || (_| | |_) | || (_) \__ \ (_| | |
-     \__\__,_|_.__/ \__\___/|___/\__, |_|
-                                    |_|  
-
-
-
-*Tableau Workbook SQL Extract Tool*
-
-
-.. image:: https://img.shields.io/pypi/v/tabtosql.svg
-    :target: https://pypi.python.org/pypi/tabtosql
+.. image:: https://img.shields.io/pypi/v/twp.svg
+    :target: https://pypi.python.org/pypi/twp
 
 
 OVERVIEW
 ''''''''
-tabtosql is a command line tool for parsing sql queries & related
+twp is a command line tool for parsing sql queries & related
 information out of tableau workbooks (.twb & .twbx files). It works by
 taking a tableau workbook, parsing the xml, and formatting information
 about worksheets, connections to those worksheets, their connection(db)
@@ -30,11 +18,15 @@ USAGE
 '''''
 .. code-block:: bash
 
-    $ tabtosql input.twb(x) > output.sql
+    $ twp input.twb(x) > output.sql
 
 
 INSTALL
 '''''''
 .. code-block:: bash
 
-    $ python -m pip install tabtosql
+    $ python -m pip install twp
+
+CREDITS
+*******
+Forked from (and based mostly on) https://github.com/levikanwischer/tabtosql, work (c) 2016 by Levi Kanwischer

@@ -8,7 +8,7 @@ import re
 from setuptools import setup, find_packages
 
 
-NAME = 'tabtosql'
+NAME = 'twp'
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -33,7 +33,7 @@ def version(baked):
 
 setup(
     name=NAME,
-    version=version(baked='1.0.4'),
+    version=version(baked='1.0.5'),
     author='Levi Kanwischer',
     author_email='levi@kanwischer.me',
     license='MIT',
@@ -44,7 +44,7 @@ setup(
     install_requires=['click>=4.1'],
     entry_points={
         'console_scripts': [
-            'tabtosql = tabtosql.__main__:cli',
+            'twp = twp.__main__:cli',
         ]
     },
     packages=find_packages(),

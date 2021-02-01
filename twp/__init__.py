@@ -20,7 +20,7 @@ from .workbook import convert
 
 
 __title__ = 'twp'
-__version__ = '1.0.5'
+__version__ = '2.0.0'
 __author__ = 'Levi Kanwischer, Alaina Hardie'
 __copyright__ = 'Copyright (c) 2016 Levi Kanwischer, (c) 2021 Alaina Hardie'
 __license__ = 'MIT'

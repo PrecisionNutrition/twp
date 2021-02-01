@@ -33,7 +33,7 @@ def version(baked):
 
 setup(
     name=NAME,
-    version=version(baked='1.0.5'),
+    version=version(baked='2.0.0'),
     author='Levi Kanwischer',
     author_email='levi@kanwischer.me',
     license='MIT',

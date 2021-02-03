@@ -8,6 +8,7 @@ commonmark==0.9.1
 dictdiffer==0.8.1
 idna==2.10
 notion==0.0.27
+python-dotenv==0.15.0
 python-slugify==4.0.1
 pytz==2021.1
 requests==2.25.1

@@ -25,8 +25,8 @@ import twp
 
 
 @click.command()
-@click.argument('filename')
-def cli(filename):
+@click.argument('filenames', -1)
+def cli(filenames):
     """Tableau Workbook Parser
 
     twp is a command line tool for parsing sql queries & related
@@ -42,4 +42,6 @@ def cli(filename):
 
     See the README for further details.
     """
-    sys.stdout.write(twp.convert(filename))
+
+    for fn in filenames:
+        sys.stdout.write(twp.convert(fn))

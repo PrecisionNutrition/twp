@@ -42,5 +42,6 @@ def cli(filenames):
 
     See the README for further details.
     """
+
     for fn in filenames:
         sys.stdout.write(twp.convert(fn))

@@ -73,7 +73,7 @@ def parse_datasources(datasources):
     datasources = [i for i in datasources if 'caption' in i.attrib]
 
     for datasource in datasources:
-        named_connection = datasource.findall('.//*/*/named-connection/connection')
+        nconns = datasource.findall('.//*/*/named-connection')
 
         connections = datasource.findall(".//connection[@class='snowflake']")
 
@@ -83,12 +83,16 @@ def parse_datasources(datasources):
 
         if len(connections) > 0:
             conn = connections[0]
+            nc = nconns[0]
+
+            datasource_name = nc.attrib['name'] if 'name' in nc .attrib else None
             engine = conn.attrib['class'] if 'class' in conn.attrib else None
             database = conn.attrib['dbname'] if 'dbname' in conn.attrib else None
             server = conn.attrib['server'] if 'server' in conn.attrib else None
             username = conn.attrib['username'] if 'username' in conn.attrib else None
             schema = conn.attrib['schema'] if 'schema' in conn.attrib else None
         else:
+            datasource_name = 'No snowflake connection'
             engine = 'No snowflake connection'
             database = 'No snowflake connection'
             server = 'No snowflake connection'
@@ -96,6 +100,7 @@ def parse_datasources(datasources):
             schema = 'No snowflake connection'
 
         results[name] = {
+                'datasource_name': datasource_name,
                 'source_name': name,
                 'source_caption': caption,
                 'engine': engine,
@@ -108,23 +113,29 @@ def parse_datasources(datasources):
     return results
 
 
-def parse_queries(relations):
+def parse_relations(relations):
     """Parse query&table xml objects & return cleaned values."""
-    results = OrderedDict()
+    results = list()
 
     for relation in relations:
         if relation is None or relation.attrib['type'] == 'join':
             continue
+
         name = relation.attrib['name']
-        query = relation.text if relation.text else '-- LINKED TO: %s' % relation.attrib['table']
+
+        query = relation.text if relation.text else '      -- LINKED TO: %s' % relation.attrib['table']
 
         query = query.replace('<<', '<').replace('>>', '>')
 
         # TODO: Should be handling for universal newlines better (ie \r\n)
-        results[name] = {
+        results.append({
                 'query': re.sub(r'\r\n', r'\n', query),
-                'connection': relation.attrib['connection'] if 'connection' in relation.attrib else ''
-                }
+                'connection': relation.attrib['connection'] if 'connection' in relation.attrib else '',
+                'table': relation.attrib['table'] if 'table' in relation.attrib else '',
+                'type': relation.attrib['type'] if 'type' in relation.attrib else '',
+                'name': relation.attrib['name'] if 'name' in relation.attrib else '',
+                'datasource_name': relation.attrib['datasource_name'] if 'datasource_name' in relation.attrib else ''
+                })
 
     return results
 
@@ -159,15 +170,28 @@ def format_worksheets(worksheets):
     output += '\n'*2
     return output
 
+def filter_relations_for_datasource(datasource_name, relations):
+    results = list()
 
-def format_datasources(datasources):
+    for r in relations:
+        dsname = r['connection']
+        if (datasource_name in dsname):
+            results.append(r)
+
+    retval = list({r['name']:r for r in results}.values())
+
+    return retval
+
+def format_datasources(datasources, relations):
     """Format datasources object for outfile."""
     output = '-- Datasources & Connections %s\n' % ('-'*(LINE_BIG-29))
 
     for source in datasources:
-        output += '-- %s\n' % source
-        output += '  -- Source name: %s\n' % datasources[source]['source_name']
-        output += '  -- Source caption: %s\n' % datasources[source]['source_caption']
+        ds_name = datasources[source]['datasource_name']
+
+        output += '--DATA SOURCE %s\n' % datasources[source]['source_caption']
+        output += '  -- Source name: %s\n' % ds_name
+        output += '  -- Named connection source name: %s\n' % datasources[source]['source_name']
         output += '  -- Server: %s\n' % datasources[source]['server']
         output += '  -- Username: %s\n' % datasources[source]['user']
         output += '  -- Engine: %s\n' % datasources[source]['engine']
@@ -175,18 +199,23 @@ def format_datasources(datasources):
         output += '  -- Schema: %s\n' % datasources[source]['schema']
         output += '\n'*2
 
+        output += format_relations(filter_relations_for_datasource(ds_name, relations), ds_name)
 
     return output
 
 
-def format_queries(queries):
-    """Format datasources object for outfile."""
-    output = '-- Queries %s\n' % ('-'*(LINE_BIG-11))
+def format_relations(relations, dsname):
+    """Format relations object for outfile."""
+    output = f'  ------- relations for datasource {dsname}\n'
 
-    for query in queries:
-        output += '-- %s %s\n' % (query, '-'*(LINE_SMALL-4-len(query)))
-        output += ' -- Connection: %s\n' % queries[query]['connection']
-        output += queries[query]['query']
+    for r in relations:
+        output += '      -- RELATION %s %s\n' % (r['name'], '-'*(LINE_SMALL-4-len(r['name'])))
+        output += '       -- Connection: %s\n' % r['connection']
+        output += '       -- Name: %s\n' % r['name']
+        output += '       -- Type: %s\n' % r['type']
+        output += '       -- Table: %s\n' % r['table']
+        output += '       -- Custom Query: %s\n' % r['table']
+        output += r['query']
         output += '\n;%s' % ('\n'*3)
 
     return output
@@ -198,11 +227,10 @@ def convert(filename):
 
     worksheets = parse_worksheets(twb.find('worksheets'))
     datasources = parse_datasources(twb.find('datasources'))
-    sql = parse_queries(twb.findall('.//relation'))
+    relations = parse_relations(twb.findall('.//relation'))
 
     output = format_header(filename)
     output += format_worksheets(worksheets)
-    output += format_datasources(datasources)
-    output += format_queries(sql)
+    output += format_datasources(datasources, relations)
 
     return output

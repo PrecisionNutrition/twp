@@ -25,7 +25,7 @@ import twp
 
 
 @click.command()
-@click.argument('filenames', -1)
+@click.argument('filenames', nargs=-1)
 def cli(filenames):
     """Tableau Workbook Parser
 

@@ -41,7 +41,7 @@ setup(
     description=__doc__,
     long_description=read('README.rst'),
     keywords='Tableau SQL',
-    install_requires=['click>=4.1'],
+    install_requires=['click>=7.0'],
     entry_points={
         'console_scripts': [
             'twp = twp.__main__:cli',
